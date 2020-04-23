@@ -291,7 +291,7 @@ namespace blunted {
     boost::system::error_code error;
     namespace fs = boost::filesystem;
     fs::copy_file(source, destinationDir / source.filename(), error);
-    if (error != 0) return false; else return true;
+    if (error.value() != 0) return false; else return true;
   }
 
   // http://stackoverflow.com/questions/2535284/how-can-i-hash-a-string-to-an-int-using-c

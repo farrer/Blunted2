@@ -12,6 +12,7 @@ else(${VERSION_PATCH})
 endif(${VERSION_PATCH})
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/CMakeModules")
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 project(blunted2)
 
@@ -21,6 +22,9 @@ set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Wall")
 # Find needed libraries
 FIND_PACKAGE(OpenGL REQUIRED)
 include_directories(${OPENGL_INCLUDE_DIR})
+
+FIND_PACKAGE(GLEW REQUIRED)
+include_directories(${GLEW_INCLUDE_DIRS})
 
 FIND_PACKAGE(SDL REQUIRED)
 include_directories(${SDL_INCLUDE_DIR})
@@ -37,7 +41,7 @@ include_directories(${SDL_GFX_DIRS})
 FIND_PACKAGE(SDL_net REQUIRED)
 include_directories(${SDL_NET_INCLUDE_DIRS})
 
-FIND_PACKAGE(Boost REQUIRED COMPONENTS system thread signals filesystem)
+FIND_PACKAGE(Boost REQUIRED COMPONENTS system thread filesystem)
 include_directories(${Boost_INCLUDE_DIR})
 
 FIND_PACKAGE(SGE REQUIRED)
@@ -105,8 +109,8 @@ set(OWN_LIBRARIES $<TARGET_OBJECTS:baselib> $<TARGET_OBJECTS:systemscommonlib>
 #add_library(blunted2 SHARED ${CORE_SOURCES} ${LIBS_SOURCES} ${CORE_HEADERS}
 #   ${ALL_LIBS_HEADERS} ${OWN_LIBRARIES})
 
-# For static library.
-add_library(blunted2 ${CORE_SOURCES} ${LIBS_SOURCES} ${CORE_HEADERS}
+# For shared library.
+add_library(blunted2 SHARED ${CORE_SOURCES} ${LIBS_SOURCES} ${CORE_HEADERS}
    ${ALL_LIBS_HEADERS} ${OWN_LIBRARIES})
 
 # Install our headers, keeping directory structure (if they are separated from
@@ -165,7 +169,6 @@ install(FILES ${LIBS_FASTEVENTS_HEADERS} DESTINATION
    include/blunted2/libs/fastevents)
 install(FILES ${LIBS_SQLITE3_HEADERS} DESTINATION
    include/blunted2/libs/sqlite3) 
-install(FILES ${LIBS_GLEE_HEADERS} DESTINATION include/blunted2/libs/glee)
 
 # Install the library itself.
 install(TARGETS blunted2 DESTINATION lib)

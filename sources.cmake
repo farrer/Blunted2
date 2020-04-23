@@ -379,18 +379,13 @@ set(LIBS_HEADERS
    src/libs/fastapprox.h
 )
 
-set(LIBS_GLEE_HEADERS
-   src/libs/glee/GLee.h
-)
-
 set(ALL_LIBS_HEADERS ${LIBS_HEADERS} ${LIBS_FASTEVENTS_HEADERS} 
-   ${LIBS_SQLITE3_HEADERS} ${LIBS_GLEE_HEADERS})
+   ${LIBS_SQLITE3_HEADERS})
 
 set(LIBS_SOURCES
    src/libs/fastevents/fastevents.c
    src/libs/fastevents/trace.c
    src/libs/fastevents/SDLUtils.c
    src/libs/sqlite3/sqlite3.c
-   src/libs/glee/GLee.c
 )
 

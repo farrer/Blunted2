@@ -15,7 +15,7 @@ namespace blunted {
 
   class Gui2WindowManager;
 
-  class Gui2View : public boost::signals::trackable {
+  class Gui2View : public boost::signals2::trackable {
 
     public:
       Gui2View(Gui2WindowManager *windowManager, const std::string &name, float x_percent, float y_percent, float width_percent, float height_percent);
@@ -73,7 +73,7 @@ namespace blunted {
       virtual int GetZPriority() const { return zPriority; }
       void PrintTree(int depth);
 
-      boost::signal<void()> sig_OnClose;
+      boost::signals2::signal<void()> sig_OnClose;
 
     protected:
       Gui2WindowManager *windowManager;

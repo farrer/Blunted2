@@ -27,8 +27,8 @@
 #include <boost/intrusive_ptr.hpp>
 #include <boost/thread/mutex.hpp>
 #include <boost/thread/condition.hpp>
-#include <boost/signal.hpp>
-#include <boost/signals/slot.hpp>
+#include <boost/signals2.hpp>
+#include <boost/signals2/slot.hpp>
 #include <boost/bind.hpp>
 
 namespace blunted {

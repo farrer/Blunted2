@@ -43,9 +43,9 @@ namespace blunted {
       virtual void OnGainFocus();
       virtual void OnLoseFocus();
 
-      boost::signal<void(Gui2Button*)> sig_OnClick;
-      boost::signal<void(Gui2Button*)> sig_OnGainFocus;
-      boost::signal<void(Gui2Button*)> sig_OnLoseFocus;
+      boost::signals2::signal<void(Gui2Button*)> sig_OnClick;
+      boost::signals2::signal<void(Gui2Button*)> sig_OnGainFocus;
+      boost::signals2::signal<void(Gui2Button*)> sig_OnLoseFocus;
 
     protected:
       Gui2Caption *captionView;

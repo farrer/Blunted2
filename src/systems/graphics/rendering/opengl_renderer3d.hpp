@@ -7,7 +7,9 @@
 
 #include "interface_renderer3d.hpp"
 
-#include "libs/glee/GLee.h"
+#ifdef __linux__
+#include <GL/glxew.h>
+#endif
 
 #include <SDL/SDL_image.h>
 #ifdef WIN32

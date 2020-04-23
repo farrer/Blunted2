@@ -49,7 +49,7 @@ namespace blunted {
       void SetHelperValue(int index, float value);
       void DeleteHelperValue(int index);
 
-      boost::signal<void(Gui2Slider*)> sig_OnChange;
+      boost::signals2::signal<void(Gui2Slider*)> sig_OnChange;
 
     protected:
       boost::intrusive_ptr<Image2D> image;

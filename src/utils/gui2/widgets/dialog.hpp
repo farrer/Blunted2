@@ -27,9 +27,9 @@ namespace blunted {
 
       virtual void ProcessWindowingEvent(WindowingEvent *event);
 
-      //boost::signal<void(Gui2Dialog*)> sig_OnClose;
-      boost::signal<void(Gui2Dialog*)> sig_OnPositive;
-      boost::signal<void(Gui2Dialog*)> sig_OnNegative;
+      //boost::signals2::signal<void(Gui2Dialog*)> sig_OnClose;
+      boost::signals2::signal<void(Gui2Dialog*)> sig_OnPositive;
+      boost::signals2::signal<void(Gui2Dialog*)> sig_OnNegative;
 
     protected:
       Gui2Grid *grid;

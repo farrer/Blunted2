@@ -38,7 +38,7 @@ namespace blunted {
       int lineheight;
       int numlines;
 
-      boost::signals::connection logConn;
+      boost::signals2::connection logConn;
 
   };
 

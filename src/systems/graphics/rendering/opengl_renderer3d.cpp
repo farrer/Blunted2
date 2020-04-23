@@ -424,6 +424,12 @@ namespace blunted {
 #endif
 
 #ifdef __linux__
+    GLenum err = glewInit();
+    if (GLEW_OK != err) {
+      std::string errorString =  (char*) glewGetErrorString(err);
+      Log(e_FatalError, "OpenGLRenderer3D", "CreateContext", errorString);
+    }
+
     bool success = false;//glXSwapIntervalSGI(-1); // anti-tear blah
     if (!success) glXSwapIntervalSGI(1);
     //if (!success) printf("ANTI TEAR NOT SUPPORTED\n\n\n\n\n");

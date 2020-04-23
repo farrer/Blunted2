@@ -40,7 +40,7 @@ namespace blunted {
 
       DirEntry GetClickedEntry();
 
-      boost::signal<void(Gui2FileBrowser*)> sig_OnClick;
+      boost::signals2::signal<void(Gui2FileBrowser*)> sig_OnClick;
 
     protected:
       void DisplayDirectory();

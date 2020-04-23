@@ -1,4 +1,53 @@
 /*=====================================================================*
+ *                   Copyright (C) 2012 Paul Mineiro                   *
+ * All rights reserved.                                                *
+ *                                                                     *
+ * Redistribution and use in source and binary forms, with             *
+ * or without modification, are permitted provided that the            *
+ * following conditions are met:                                       *
+ *                                                                     *
+ *     * Redistributions of source code must retain the                *
+ *     above copyright notice, this list of conditions and             *
+ *     the following disclaimer.                                       *
+ *                                                                     *
+ *     * Redistributions in binary form must reproduce the             *
+ *     above copyright notice, this list of conditions and             *
+ *     the following disclaimer in the documentation and/or            *
+ *     other materials provided with the distribution.                 *
+ *                                                                     *
+ *     * Neither the name of Paul Mineiro nor the names                *
+ *     of other contributors may be used to endorse or promote         *
+ *     products derived from this software without specific            *
+ *     prior written permission.                                       *
+ *                                                                     *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND              *
+ * CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,         *
+ * INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES               *
+ * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE             *
+ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER               *
+ * OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,                 *
+ * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES            *
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE           *
+ * GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR                *
+ * BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF          *
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT           *
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY              *
+ * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE             *
+ * POSSIBILITY OF SUCH DAMAGE.                                         *
+ *                                                                     *
+ * Contact: Paul Mineiro <paul@mineiro.com>                            *
+ *=====================================================================*/
+
+#ifndef __CAST_H_
+
+#ifdef __cplusplus
+#define cast_uint32_t static_cast<uint32_t>
+#else
+#define cast_uint32_t (uint32_t)
+#endif
+
+#endif // __CAST_H_
+/*=====================================================================*
  *                   Copyright (C) 2011 Paul Mineiro                   *
  * All rights reserved.                                                *
  *                                                                     *
@@ -55,9 +104,49 @@ typedef __m128i v4si;
 #define v4si_to_v4sf _mm_cvtepi32_ps
 #define v4sf_to_v4si _mm_cvttps_epi32
 
-#define v4sfl(x) ((const v4sf) { (x), (x), (x), (x) })
-#define v2dil(x) ((const v4si) { (x), (x) })
-#define v4sil(x) v2dil((((unsigned long long) (x)) << 32) | (x))
+#if _MSC_VER && !__INTEL_COMPILER
+  template <class T>
+  __forceinline char GetChar(T value, size_t index) { return ((char*)&value)[index]; }
+
+  #define AS_4CHARS(a) \
+      GetChar(int32_t(a), 0), GetChar(int32_t(a), 1), \
+      GetChar(int32_t(a), 2), GetChar(int32_t(a), 3)
+
+  #define _MM_SETR_EPI32(a0, a1, a2, a3) \
+      { AS_4CHARS(a0), AS_4CHARS(a1), AS_4CHARS(a2), AS_4CHARS(a3) }
+
+  #define v4sfl(x) (const v4sf { (x), (x), (x), (x) })
+  #define v4sil(x) (const v4si _MM_SETR_EPI32(x, x, x, x))
+
+  __forceinline const v4sf operator+(const v4sf& a, const v4sf& b) { return _mm_add_ps(a,b); }
+  __forceinline const v4sf operator-(const v4sf& a, const v4sf& b) { return _mm_sub_ps(a,b); }
+  __forceinline const v4sf operator/(const v4sf& a, const v4sf& b) { return _mm_div_ps(a,b); }
+  __forceinline const v4sf operator*(const v4sf& a, const v4sf& b) { return _mm_mul_ps(a,b); }
+
+  __forceinline const v4sf operator+(const v4sf& a) { return a; }
+  __forceinline const v4sf operator-(const v4sf& a) { return _mm_xor_ps(a, _mm_castsi128_ps(_mm_set1_epi32(0x80000000))); }
+
+  __forceinline const v4sf operator&(const v4sf& a, const v4sf& b) { return _mm_and_ps(a,b); }
+  __forceinline const v4sf operator|(const v4sf& a, const v4sf& b) { return _mm_or_ps(a,b); }
+  __forceinline const v4sf operator^(const v4sf& a, const v4sf& b) { return _mm_xor_ps(a,b); }
+
+  __forceinline const v4si operator&(const v4si& a, const v4si& b) { return _mm_and_si128(a,b); }
+  __forceinline const v4si operator|(const v4si& a, const v4si& b) { return _mm_or_si128(a,b); }
+  __forceinline const v4si operator^(const v4si& a, const v4si& b) { return _mm_xor_si128(a,b); }
+
+  __forceinline const v4sf operator+=(v4sf& a, const v4sf& b) { return a = a + b; }
+  __forceinline const v4sf operator-=(v4sf& a, const v4sf& b) { return a = a - b; }
+  __forceinline const v4sf operator*=(v4sf& a, const v4sf& b) { return a = a * b; }
+  __forceinline const v4sf operator/=(v4sf& a, const v4sf& b) { return a = a / b; }
+
+  __forceinline const v4si operator|=(v4si& a, const v4si& b) { return a = a | b; }
+  __forceinline const v4si operator&=(v4si& a, const v4si& b) { return a = a & b; }
+  __forceinline const v4si operator^=(v4si& a, const v4si& b) { return a = a ^ b; }
+#else
+  #define v4sfl(x) ((const v4sf) { (x), (x), (x), (x) })
+  #define v2dil(x) ((const v4si) { (x), (x) })
+  #define v4sil(x) v2dil((((long long) (x)) << 32) | (long long) (x))
+#endif
 
 typedef union { v4sf f; float array[4]; } v4sfindexer;
 #define v4sf_index(_findx, _findi)      \
@@ -73,12 +162,17 @@ typedef union { v4si i; int array[4]; } v4siindexer;
   })
 
 typedef union { v4sf f; v4si i; } v4sfv4sipun;
-#define v4sf_fabs(x)                    \
+#if _MSC_VER && !__INTEL_COMPILER
+  #define v4sf_fabs(x) _mm_and_ps(x, _mm_castsi128_ps(_mm_set1_epi32(0x7fffffff)))
+#else
+  #define v4sf_fabs(x)                  \
   ({                                    \
-     v4sfv4sipun vx = { x };            \
+     v4sfv4sipun vx;                    \
+     vx.f = x;                          \
      vx.i &= v4sil (0x7FFFFFFF);        \
      vx.f;                              \
   })
+#endif
 
 #ifdef __cplusplus
 } // end namespace
@@ -142,7 +236,7 @@ fastpow2 (float p)
   float clipp = (p < -126) ? -126.0f : p;
   int w = clipp;
   float z = clipp - w + offset;
-  union { uint32_t i; float f; } v = { (1 << 23) * (clipp + 121.2740575f + 27.7280233f / (4.84252568f - z) - 1.49012907f * z) };
+  union { uint32_t i; float f; } v = { cast_uint32_t ( (1 << 23) * (clipp + 121.2740575f + 27.7280233f / (4.84252568f - z) - 1.49012907f * z) ) };
 
   return v.f;
 }
@@ -157,7 +251,7 @@ static inline float
 fasterpow2 (float p)
 {
   float clipp = (p < -126) ? -126.0f : p;
-  union { uint32_t i; float f; } v = { (1 << 23) * (clipp + 126.94269504f) };
+  union { uint32_t i; float f; } v = { cast_uint32_t ( (1 << 23) * (clipp + 126.94269504f) ) };
   return v.f;
 }
 
@@ -185,7 +279,7 @@ vfastpow2 (const v4sf p)
   const v4sf c_1_49012907 = v4sfl (1.49012907f);
   union { v4si i; v4sf f; } v = {
     v4sf_to_v4si (
-      v4sfl (1 << 23) *
+      v4sfl (1 << 23) * 
       (clipp + c_121_2740838 + c_27_7280233 / (c_4_84252568 - z) - c_1_49012907 * z)
     )
   };
@@ -267,7 +361,7 @@ vfasterexp (const v4sf p)
 
 #include <stdint.h>
 
-static inline float
+static inline float 
 fastlog2 (float x)
 {
   union { float f; uint32_t i; } vx = { x };
@@ -276,7 +370,7 @@ fastlog2 (float x)
   y *= 1.1920928955078125e-7f;
 
   return y - 124.22551499f
-           - 1.498030302f * mx.f
+           - 1.498030302f * mx.f 
            - 1.72587999f / (0.3520887068f + mx.f);
 }
 
@@ -286,7 +380,7 @@ fastlog (float x)
   return 0.69314718f * fastlog2 (x);
 }
 
-static inline float
+static inline float 
 fasterlog2 (float x)
 {
   union { float f; uint32_t i; } vx = { x };
@@ -298,7 +392,12 @@ fasterlog2 (float x)
 static inline float
 fasterlog (float x)
 {
-  return 0.69314718f * fasterlog2 (x);
+//  return 0.69314718f * fasterlog2 (x);
+
+  union { float f; uint32_t i; } vx = { x };
+  float y = vx.i;
+  y *= 8.2629582881927490e-8f;
+  return y - 87.989971088f;
 }
 
 #ifdef __SSE2__
@@ -307,7 +406,7 @@ static inline v4sf
 vfastlog2 (v4sf x)
 {
   union { v4sf f; v4si i; } vx = { x };
-  union { v4si i; v4sf f; } mx = { (vx.i & v4sil (0x007FFFFF)) | v4sil (0x3f000000) };
+  union { v4si i; v4sf f; } mx; mx.i = (vx.i & v4sil (0x007FFFFF)) | v4sil (0x3f000000);
   v4sf y = v4si_to_v4sf (vx.i);
   y *= v4sfl (1.1920928955078125e-7f);
 
@@ -317,7 +416,7 @@ vfastlog2 (v4sf x)
   const v4sf c_0_3520087068 = v4sfl (0.3520887068f);
 
   return y - c_124_22551499
-           - c_1_498030302 * mx.f
+           - c_1_498030302 * mx.f 
            - c_1_725877999 / (c_0_3520087068 + mx.f);
 }
 
@@ -329,7 +428,7 @@ vfastlog (v4sf x)
   return c_0_69314718 * vfastlog2 (x);
 }
 
-static inline v4sf
+static inline v4sf 
 vfasterlog2 (v4sf x)
 {
   union { v4sf f; v4si i; } vx = { x };
@@ -344,9 +443,17 @@ vfasterlog2 (v4sf x)
 static inline v4sf
 vfasterlog (v4sf x)
 {
-  const v4sf c_0_69314718 = v4sfl (0.69314718f);
+//  const v4sf c_0_69314718 = v4sfl (0.69314718f);
+//
+//  return c_0_69314718 * vfasterlog2 (x);
 
-  return c_0_69314718 * vfasterlog2 (x);
+  union { v4sf f; v4si i; } vx = { x };
+  v4sf y = v4si_to_v4sf (vx.i);
+  y *= v4sfl (8.2629582881927490e-8f);
+
+  const v4sf c_87_989971088 = v4sfl (87.989971088f);
+
+  return y - c_87_989971088;
 }
 
 #endif // __SSE2__
@@ -427,7 +534,7 @@ fastererfc (float x)
   return 2.0f / (1.0f + fasterpow2 (k * x));
 }
 
-// fasterf: not actually faster than erff(3) on newer machines!
+// fasterf: not actually faster than erff(3) on newer machines! 
 // ... although vectorized version is interesting
 //     and fastererf is very fast
 
@@ -454,7 +561,7 @@ fastinverseerf (float x)
 
   float xsq = x * x;
 
-  return invk * fastlog2 ((1.0f + x) / (1.0f - x))
+  return invk * fastlog2 ((1.0f + x) / (1.0f - x)) 
        + x * (a - b * xsq) / (c - d * xsq);
 }
 
@@ -476,7 +583,7 @@ vfasterfc (v4sf x)
   const v4sf b = v4sfl (15.418191568719577f);
   const v4sf c = v4sfl (5.609846028328545f);
 
-  union { v4sf f; v4si i; } vc = { c * x };
+  union { v4sf f; v4si i; } vc; vc.f = c * x;
   vc.i |= v4sil (0x80000000);
 
   v4sf xsq = x * x;
@@ -516,7 +623,7 @@ vfastinverseerf (v4sf x)
 
   v4sf xsq = x * x;
 
-  return invk * vfastlog2 ((v4sfl (1.0f) + x) / (v4sfl (1.0f) - x))
+  return invk * vfastlog2 ((v4sfl (1.0f) + x) / (v4sfl (1.0f) - x)) 
        + x * (a - b * xsq) / (c - d * xsq);
 }
 
@@ -584,17 +691,17 @@ fastlgamma (float x)
   float logterm = fastlog (x * (1.0f + x) * (2.0f + x));
   float xp3 = 3.0f + x;
 
-  return - 2.081061466f
-         - x
-         + 0.0833333f / xp3
-         - logterm
+  return - 2.081061466f 
+         - x 
+         + 0.0833333f / xp3 
+         - logterm 
          + (2.5f + x) * fastlog (xp3);
 }
 
 static inline float
 fasterlgamma (float x)
 {
-  return - 0.0810614667f
+  return - 0.0810614667f 
          - x
          - fasterlog (x)
          + (0.5f + x) * fasterlog (1.0f + x);
@@ -635,9 +742,9 @@ vfastlgamma (v4sf x)
   v4sf xp3 = c_3_0 + x;
 
   return - c_2_081061466
-         - x
-         + c_0_0833333 / xp3
-         - logterm
+         - x 
+         + c_0_0833333 / xp3 
+         - logterm 
          + (c_2_5 + x) * vfastlog (xp3);
 }
 
@@ -959,7 +1066,7 @@ vfastlambertw (v4sf x)
   v4sf xexpminusw = x * expminusw;
   v4sf pexpminusw = xexpminusw - minusw;
 
-  return (v4sfl (2.0f) * xexpminusw - minusw * (v4sfl (4.0f) * xexpminusw - minusw * pexpminusw)) /
+  return (v4sfl (2.0f) * xexpminusw - minusw * (v4sfl (4.0f) * xexpminusw - minusw * pexpminusw)) / 
          (v4sfl (2.0f) + pexpminusw * (v4sfl (2.0f) - minusw));
 }
 
@@ -1078,12 +1185,6 @@ fastpow (float x,
          float p)
 {
   return fastpow2 (p * fastlog2 (x));
-
-  // bazkie safety version
-  /*
-  float result = fastpow2 (p * fastlog2 (x));
-  if (result < 0.0f) result = 0.0f;
-  return result;*/
 }
 
 static inline float
@@ -1244,7 +1345,7 @@ vfastersigmoid (const v4sf x)
 // inaccurate for |x| >> 1000
 //
 // WARNING: fastsinfull, fastcosfull, and fasttanfull can be slower than
-// libc calls on older machines (!) and on newer machines are only
+// libc calls on older machines (!) and on newer machines are only 
 // slighly faster.  however:
 //   * vectorized versions are competitive
 //   * faster full versions are competitive
@@ -1408,7 +1509,7 @@ vfastsin (const v4sf x)
 
   v4sf qpprox = fouroverpi * x - fouroverpisq * x * vx.f;
   v4sf qpproxsq = qpprox * qpprox;
-  union { v4sf f; v4si i; } vy = { qpproxsq * (p + qpproxsq * (r + qpproxsq * s)) };
+  union { v4sf f; v4si i; } vy; vy.f = qpproxsq * (p + qpproxsq * (r + qpproxsq * s));
   vy.i ^= sign;
 
   return q * qpprox + vy.f;

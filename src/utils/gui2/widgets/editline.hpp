@@ -32,10 +32,10 @@ namespace blunted {
       virtual void OnLoseFocus();
       virtual void ProcessKeyboardEvent(KeyboardEvent *event);
 
-      boost::signal<void(Gui2EditLine*)> sig_OnEnter;
-      boost::signal<void(Gui2EditLine*)> sig_OnGainFocus;
-      boost::signal<void(Gui2EditLine*)> sig_OnLoseFocus;
-      boost::signal<void(Gui2EditLine*)> sig_OnChange;
+      boost::signals2::signal<void(Gui2EditLine*)> sig_OnEnter;
+      boost::signals2::signal<void(Gui2EditLine*)> sig_OnGainFocus;
+      boost::signals2::signal<void(Gui2EditLine*)> sig_OnLoseFocus;
+      boost::signals2::signal<void(Gui2EditLine*)> sig_OnChange;
 
     protected:
       Gui2Caption *caption;

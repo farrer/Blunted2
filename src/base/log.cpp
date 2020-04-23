@@ -22,7 +22,7 @@ namespace blunted {
     if (logFile.is_open()) logFile.close();
   }
 
-  boost::signals::connection BindLog(const signal_LogCallback::slot_type &slot) {
+  boost::signals2::connection BindLog(const signal_LogCallback::slot_type &slot) {
     return callback.connect(slot);
   }
 

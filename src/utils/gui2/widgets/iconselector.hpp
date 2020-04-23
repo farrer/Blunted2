@@ -42,8 +42,8 @@ namespace blunted {
       virtual void OnGainFocus();
       virtual void OnLoseFocus();
 
-      boost::signal<void()> sig_OnClick;
-      boost::signal<void()> sig_OnChange;
+      boost::signals2::signal<void()> sig_OnClick;
+      boost::signals2::signal<void()> sig_OnChange;
 
     protected:
       boost::intrusive_ptr<Image2D> image;
